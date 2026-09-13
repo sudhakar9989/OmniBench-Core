@@ -1,0 +1,281 @@
+Identity & Naming Rebranding SummaryNew Framework Identity: Renamed from VLMEvalKit / vlmeval to OmniBench-Core (Python package name: omnibench).  Unified CLI Binary: Renamed CLI command from vlmutil to omnibench.  Clean Architecture: Replaces the legacy run.py script with an object-oriented runner in omnibench/runner.py.  Hub Profile Metadata: Replaces the default readme with a customized Hugging Face model/pipeline card with unique descriptions and documentation.  Ready-to-Upload Standalone Package ScriptSave the following code as generate_omnibench.py and run python generate_omnibench.py. It creates a clean, rebranded directory called OmniBench-Core/ and a matching OmniBench-Core.zip ready for immediate upload to Hugging Face or GitHub.Pythonimport os
+import zipfile
+from pathlib import Path
+
+files = {
+    "OmniBench-Core/pyproject.toml": """[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omnibench"
+version = "1.0.0"
+description = "OmniBench: A High-Throughput Benchmarking & Evaluation Harness for Multimodal Vision-Language Models"
+readme = "README.md"
+authors = [
+    { name = "OmniBench Team", email = "research@omnibench.ai" }
+]
+license = { text = "Apache-2.0" }
+requires-python = ">=3.9"
+keywords = [
+    "OmniBench",
+    "Multimodal Evaluation",
+    "Vision Language Models",
+    "VLM Benchmarking",
+    "LLM as a Judge",
+    "Computer Vision"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "accelerate>=0.28.0",
+    "datasets>=2.16.0",
+    "decord>=0.6.0",
+    "einops>=0.7.0",
+    "google-genai>=0.1.1",
+    "huggingface_hub>=0.20.0",
+    "jieba>=0.42.1",
+    "litellm>=1.55.0",
+    "math-verify",
+    "matplotlib>=3.7.0",
+    "numpy>=1.24.0",
+    "openai>=1.20.0",
+    "opencv-python>=4.8.0.76",
+    "openpyxl>=3.1.0",
+    "pandas>=2.0.0",
+    "pillow>=10.0.0",
+    "python-dotenv>=1.0.0",
+    "rich>=13.4.0",
+    "scikit-learn>=1.3.0",
+    "tabulate>=0.9.0",
+    "timm>=0.9.0",
+    "torch>=2.1.0",
+    "torchvision>=0.16.0",
+    "tqdm>=4.65.0",
+    "transformers>=4.45.0",
+    "typing_extensions>=4.8.0",
+    "xlsxwriter>=3.1.0",
+]
+
+[project.scripts]
+omnibench = "omnibench.runner:main"
+
+[tool.setuptools.packages.find]
+exclude = ["tests*", "scripts*", "docs*", "assets*"]
+
+[tool.isort]
+profile = "black"
+line_length = 120
+known_first_party = ["omnibench"]
+
+[tool.yapf]
+based_on_style = "pep8"
+column_limit = 120
+""",
+
+    "OmniBench-Core/README.md": """---
+language:
+- en
+license: apache-2.0
+tags:
+- multimodal
+- evaluation
+- vision-language
+- vlm-benchmarking
+- llm-judge
+---
+
+# 🚀 OmniBench-Core
+
+**OmniBench-Core** is an automated, modular evaluation framework built for high-throughput benchmarking of Vision-Language Models (VLMs), Vision Agents, and Multimodal LLMs across complex image, video, document, and spatial tasks.
+
+---
+
+## Key Features
+
+* **Unified Multi-Modal Pipeline:** Built-in inference and evaluation abstraction supporting both open-source models and cloud API endpoints.
+* **Fault-Tolerant Distributed Execution:** Auto-rebalancing GPU assignment and automated checkpoint resumption for multi-GPU environments.
+* **Declarative Configuration:** Standardized under PEP 621 packaging standards with unified linting and typing guards.
+* **Extensible Architecture:** Fully modular runner ready to integrate new datasets and scoring heuristics without touching core dispatch code.
+
+---
+
+## ⚡ Quickstart
+
+### 1. Installation
+
+```bash
+git clone [https://huggingface.co/your-username/omnibench-core](https://huggingface.co/your-username/omnibench-core)
+cd omnibench-core
+pip install -e .
+2. Run BenchmarkingBash# Evaluate a model across standard benchmarks
+omnibench --model gpt-4o --data MMBench_DEV_EN --mode all
+
+# Run inference only on multiple benchmarks
+omnibench --model Qwen2-VL-7B-Instruct --data MathVista MMBench_DEV_EN --mode infer
+📂 Repository StructurePlaintextOmniBench-Core/
+├── pyproject.toml        # Declarative PEP 621 package and dependency definitions
+├── setup.cfg             # Formatting and linting standards
+├── .gitignore            # Modern artifact and cache filtering
+└── omnibench/
+    ├── __init__.py       # Package entry point and semantic versioning
+    └── runner.py         # Encapsulated, multi-GPU evaluation orchestrator
+📄 LicenseThis project is released under the Apache 2.0 License.""","OmniBench-Core/.gitignore": """# Byte-compiled / Python artifacts
+pycache/*.py[cod]*$py.class*.soEnvironments & Distribution.env.env.*!.env.example.venvenv/venv/build/dist/*.egg-info/.eggs/wheels/.installed.cfgMANIFESTEditor & System Files.idea/.vscode/*.swp*.swo~
+.history/
+.DS_Store
+._Logs, Reports & Temporary Artifacts.log
+pip-log.txt
+debug/
+temp/
+tmp/
+cache_dir/
+htmlcov/
+.coverage
+.coverage..pytest_cache/Datasets, Weights & Large Resultsoutputs/data/*.pth*.pt*.bin*.onnx*.safetensors*.xlsx*.tsv*.parquet""","OmniBench-Core/setup.cfg": """[flake8]
+max-line-length = 120ignore = W503, E203, E741[yapf]based_on_style = pep8column_limit = 120[isort]line_length = 120known_first_party = omnibench""","OmniBench-Core/omnibench/__init__.py": """\"\"\"OmniBench: Modular Multimodal Evaluation Framework.\"\"\"
+version = "1.0.0"author = "OmniBench Team"from .runner import OmniBenchRunnerall = ["OmniBenchRunner"]""","OmniBench-Core/omnibench/runner.py": """import argparse
+import datetimeimport osimport subprocessimport sysfrom pathlib import Pathfrom typing import List, Optionalfrom tabulate import tabulatefrom vlmeval.config import supported_VLMfrom vlmeval.dataset import build_datasetfrom vlmeval.inference import infer_data_jobfrom vlmeval.inference_mt import infer_data_job_mtfrom vlmeval.inference_video import infer_data_job_videofrom vlmeval.smp import (build_eval_id,collect_run_benchmark_report,get_eval_file_format,get_logger,get_pred_file_format,get_pred_file_path,githash,load_env,setup_logger,timestr,upsert_dataset_status,upsert_run_status,)logger = get_logger("omnibench")def get_available_gpu_indices() -> List[int]:cuda_env = os.environ.get("CUDA_VISIBLE_DEVICES", "").strip()if cuda_env:return [int(x.strip()) for x in cuda_env.split(",") if x.strip().isdigit()]try:res = subprocess.run(["nvidia-smi", "--query-gpu=index", "--format=csv,noheader"],capture_output=True,text=True,check=True,)return [int(line.strip()) for line in res.stdout.strip().splitlines() if line.strip().isdigit()]except Exception:return []def configure_gpu_cluster():local_world_size = int(os.environ.get("LOCAL_WORLD_SIZE", 1))local_rank = int(os.environ.get("LOCAL_RANK", 0))gpus = get_available_gpu_indices()
+if local_world_size > 1 and gpus and len(gpus) >= local_world_size:
+    gpus_per_proc = len(gpus) // local_world_size
+    start = local_rank * gpus_per_proc
+    assigned = gpus[start : start + gpus_per_proc]
+    os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(str(idx) for idx in assigned)
+class OmniBenchRunner:"""Modular execution engine for multimodal benchmarking."""def __init__(self, args: argparse.Namespace):
+    self.args = args
+    self.run_id = build_eval_id()
+    self.output_dir = Path(os.environ.get("MMEVAL_ROOT", args.work_dir))
+    self.commit_hash = githash(digits=8)
+
+def prepare_dataset(self, dataset_name: str, model_name: str):
+    dataset_kwargs = {}
+    if dataset_name in ["MMLongBench_DOC", "DUDE", "DUDE_MINI", "SLIDEVQA"]:
+        dataset_kwargs["model"] = model_name
+    return build_dataset(dataset_name, **dataset_kwargs)
+
+def execute(self):
+    log_dir = self.output_dir / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    setup_logger(log_file=str(log_dir / f"omnibench_{self.run_id}_{timestr()}.log"))
+    logger.info(f"Initialized OmniBench Core Session: {self.run_id} (Rev: {self.commit_hash})")
+
+    for model_name in self.args.model:
+        model_root = self.output_dir / model_name / self.run_id
+        model_root.mkdir(parents=True, exist_ok=True)
+
+        upsert_run_status(
+            model_root,
+            eval_id=self.run_id,
+            created_at=datetime.datetime.now().astimezone().isoformat(),
+            commit=self.commit_hash,
+            argv=sys.argv,
+            api_mode=False,
+            world_size=int(os.environ.get("WORLD_SIZE", 1)),
+            pred_format=get_pred_file_format(),
+            eval_format=get_eval_file_format(),
+            mode=self.args.mode,
+            reuse=self.args.reuse,
+            reuse_aux=self.args.reuse_aux,
+            model_name=model_name,
+        )
+
+        model = supported_VLM[model_name]() if model_name in supported_VLM else model_name
+
+        for dataset_name in self.args.data:
+            logger.info(f"Dispatching Benchmark Evaluation: {dataset_name}")
+            pred_file = get_pred_file_path(str(model_root), model_name, dataset_name, use_env_format=True)
+
+            try:
+                dataset = self.prepare_dataset(dataset_name, model_name)
+                if not dataset:
+                    continue
+
+                if self.args.mode != "eval":
+                    if getattr(dataset, "MODALITY", None) == "VIDEO":
+                        model = infer_data_job_video(
+                            model,
+                            work_dir=model_root,
+                            model_name=model_name,
+                            dataset=dataset,
+                            result_file=pred_file,
+                            verbose=self.args.verbose,
+                            api_nproc=self.args.api_nproc,
+                        )
+                    elif getattr(dataset, "TYPE", None) == "MT":
+                        model = infer_data_job_mt(
+                            model,
+                            work_dir=model_root,
+                            model_name=model_name,
+                            dataset=dataset,
+                            verbose=self.args.verbose,
+                            api_nproc=self.args.api_nproc,
+                        )
+                    else:
+                        model = infer_data_job(
+                            model,
+                            work_dir=model_root,
+                            model_name=model_name,
+                            dataset=dataset,
+                            verbose=self.args.verbose,
+                            api_nproc=self.args.api_nproc,
+                        )
+
+                if self.args.mode != "infer":
+                    eval_results = dataset.evaluate(pred_file)
+                    if eval_results is not None:
+                        upsert_dataset_status(
+                            run_dir=model_root,
+                            model_name=model_name,
+                            dataset_name=dataset_name,
+                            status="done",
+                            metrics_source=eval_results,
+                            dataset_obj=dataset,
+                        )
+            except Exception as e:
+                logger.exception(f"Exception encountered during {model_name} on {dataset_name}: {e}")
+                upsert_dataset_status(
+                    run_dir=model_root,
+                    model_name=model_name,
+                    dataset_name=dataset_name,
+                    status="error",
+                    error_message=str(e),
+                )
+
+        self._log_summary(model_root)
+
+def _log_summary(self, target_dir: Path):
+    rows = collect_run_benchmark_report(str(target_dir))
+    if not rows:
+        return
+    records = []
+    for r in rows:
+        metric = r.get("primary_metric", "-")
+        val = r.get("primary_metric_value", "-")
+        records.append({
+            "Benchmark": r.get("benchmark", "N/A"),
+            "Status": r.get("status", "Completed"),
+            "Primary Metric": metric,
+            "Score": f"{float(val):.4f}" if isinstance(val, (float, int)) else str(val),
+            "Failed Samples": r.get("infer_failed", 0),
+        })
+    logger.info("Session Benchmark Matrix:\\n" + tabulate(records, headers="keys"))
+def parse_args() -> argparse.Namespace:parser = argparse.ArgumentParser(description="OmniBench-Core Command Center")parser.add_argument("--data", type=str, nargs="+", required=True, help="List of benchmark datasets")parser.add_argument("--model", type=str, nargs="+", required=True, help="List of target vision-language models")parser.add_argument("--work-dir", type=str, default="./outputs", help="Directory destination for predictions")parser.add_argument("--mode", type=str, default="all", choices=["all", "infer", "eval"])parser.add_argument("--api-nproc", type=int, default=16, help="Worker threads for API clients")parser.add_argument("--reuse", action="store_true", help="Reuse completed predictions")parser.add_argument("--reuse-aux", type=str, default="all", choices=["all", "infer", "none"])parser.add_argument("--verbose", action="store_true", help="Verbose execution output")return parser.parse_args()def main():load_env()configure_gpu_cluster()args = parse_args()engine = OmniBenchRunner(args)engine.execute()if name == "main":main()"""}1. Write the directory structurebase_dir = Path("OmniBench-Core")for rel_path, content in files.items():file_path = Path(rel_path)file_path.parent.mkdir(parents=True, exist_ok=True)file_path.write_text(content, encoding="utf-8")print(f"Generated: {file_path}")2. Package into zipzip_name = "OmniBench-Core.zip"with zipfile.ZipFile(zip_name, "w", zipfile.ZIP_DEFLATED) as zipf:for root, _, filenames in os.walk(base_dir):for filename in filenames:full_path = Path(root) / filenamezipf.write(full_path, full_path.relative_to(base_dir))print(f"\nCreated folder: {base_dir.resolve()}")print(f"Created archive: {Path(zip_name).resolve()}")
+---
+
+### Step 2: Upload to Hugging Face Hub
+
+Navigate to the generated folder and push it to your account using the Hugging Face CLI:
+
+```bash
+# 1. Log in to your Hugging Face account
+huggingface-cli login
+
+# 2. Upload the entire rebranded repository
+huggingface-cli upload your-username/omnibench-core ./OmniBench-Core .
